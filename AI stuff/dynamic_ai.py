@@ -1,4 +1,6 @@
 # importing
+import sys
+
 import numpy as np  # to handle data
 import pandas as pd  # to handle and save data
 import os
@@ -22,8 +24,8 @@ import openai  # to generate training data
 import seaborn as sns  # to analyse data
 from wordcloud import WordCloud
 
-import nltk
-nltk.download('stopwords') # uncomment this line to use the NLTK Downloader
+# import nltk
+# nltk.download('stopwords')  # uncomment this line to use the NLTK Downloader
 from nltk.corpus import stopwords
 
 
@@ -446,7 +448,7 @@ if __name__ == "__main__":
         try_model(biology)
         print('CHEMISTRY:')
         try_model(chemistry)
-    '''
+    
     # create two models, one for biology and one for chemistry
     topic1 = 'biology'
     topic2 = 'chemistry'
@@ -470,5 +472,6 @@ if __name__ == "__main__":
     history1.plot()
     print(f'Now come the graphs from {topic2}')
     history2.plot()
+    '''
 
 # Far higher diversity in not topic related samples needed. Normal conversation, random sequences of letters, etc.

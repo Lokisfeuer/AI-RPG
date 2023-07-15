@@ -320,21 +320,24 @@ class DYNAMIC_AI:
         labels = []
         max = len(prompts)
         for idx, i in enumerate(prompts):
-            master_prompt = f'Give me {prompt_nr} variations of this prompt: "{true_prompt}".\n\n1.'
+            master_prompt = f'Give me {prompt_nr} variations of this prompt: "{i}".\n\n1.'
             new_sentences = gen_sentences()
-            all_sentences.extend(new_sentences)
             for j in new_sentences:
-                one_hot = np.zeros(max)
-                one_hot[idx] = 1
-                labels.append(one_hot)
+                if j not in all_sentences:
+                    all_sentences.append(j)
+                    one_hot = np.zeros(max)
+                    one_hot[idx] = 1
+                    labels.append(one_hot)
 
         data = [all_sentences, labels]
         data = np.array(data).transpose()
+        '''
         mapping = []
         uni = np.unique(data)
         for i in uni:
             mapping.append(np.where(data == i)[0][0])
         data = data[mapping[1:]]
+        '''
         pd.DataFrame(data).to_csv(f"{self.name.replace(' ', '_')}_generated_data.csv", index=False,
                                   header=['sentences', 'labels'])
         self.raw_data = pd.read_csv(f"{self.name.replace(' ', '_')}_generated_data.csv")
@@ -427,10 +430,12 @@ def try_model(model):
 
 
 if __name__ == "__main__":
-    ti = DYNAMIC_AI('topic_identifier')
-    true_prompt = 'Write a sentence about biology.'
-    false_prompt = 'Write a sentence not about biology.'
-    ti.generate_training_data(true_prompt, false_prompt, 10, 50)
+    ti = DYNAMIC_AI('subject_classifier')
+    biology_prompt = 'Write a sentence about biology.'
+    chemistry_prompt = 'Write a sentence about chemistry.'
+    physics_prompt = 'Write a sentence about physics.'
+    geology_prompt = 'Write a sentence about geology.'
+    ti.generate_training_data(10, 50, biology_prompt, chemistry_prompt, physics_prompt, geology_prompt)
     print('ANALYSE DATA BEGINN')
     ti.analyse_training_data()
     print('ANALYSE DATA END')

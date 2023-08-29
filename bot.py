@@ -20,14 +20,17 @@ async def on_message(message):
     user_input = message.content
     with open('user_data.json', 'r') as f:
         data = json.load(f)
-    if message.author not in data.keys():
+    if message.author.name not in data.keys():
         user_menu = menu.MENU()
     else:
-        user_menu = jsonpickle.decode(data[message.author], keys=True)
+        user_menu = jsonpickle.decode(data[message.author.name], keys=True)
     output = user_menu(user_input)
-    data[message.author] = jsonpickle.encode(user_menu, keys=True)
+    data[message.author.name] = jsonpickle.encode(user_menu, keys=True)
     with open('user_data.json', 'w') as f:
         json.dump(data, f, indent=4)
+    if output == '':
+        output = 'An empty message was sent.'
+    await message.channel.send(output)
     return output
 
 

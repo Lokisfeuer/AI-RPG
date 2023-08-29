@@ -6,6 +6,7 @@
 import random
 import openai
 import os
+from trigger_files.trigger import get_func
 
 openai.api_key = os.getenv('OPENAI_API_KEY')
 
@@ -171,9 +172,9 @@ class SECRET:
 class FLAG:  # like secrets without text. For example "won" is now a flag not a secret anymore.
     def __init__(self, name, value=True, conditions=None):  # "and" and "or" and "not" combinations work;
         self.name = name
-        self.value = value  # boolean TODO: just check yourself when created? its checked anyways all the time
+        self.value = value  # boolean
         self.conditions = conditions
-        # conditions consist of flags (true), secrets (found), npcs (in scene), locations (in scene)
+        # conditions consist of flags (true), secrets (found), npcs (in stage), locations (in stage)
         # conditions should be rather complex
 
     def check(self, stage):  # TODO consider making this __call__ method
@@ -259,11 +260,12 @@ class TRIGGER:
         self.name = name
         self.activation_flag = activation_flag
         self.call_flag = call_flag  # two flags in case one is "static" and changed by the trigger or so.
-        self.func = func
+        self.func = func  # a string of the function name
 
     def call(self, game):  # TODO change name or make this __call__ method
+        func = get_func(game.adventure.name, self.func)
         # count = game.trigger_count
-        self.func(game)
+        return func(game)
 
 
 if __name__ == "__main__":

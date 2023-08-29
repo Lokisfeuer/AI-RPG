@@ -11,27 +11,26 @@ def write(message):
         with open('trashfile.json', 'w') as f:
             json.dump(data, f)
         return 'resetted'
-    id = str(datetime.datetime.now(datetime.timezone.utc)).lower().replace(' ', '_')
     with open('trashfile.json', 'r') as f:
         data = json.load(f)
     if message.startswith('/create'):
-        create_adventure(data['all'])
-    ob, type = None  # TODO: get ob and type from message
-    ob = add(data['aco'], ob, type)
-    data['aco'].update({ob['name']: ob})
-    data['all'][type].append(ob)
+        create_adventure(data['all'], userip='Textuser')
+    ob, ob_type = (None, None)  # TODO: get ob and type from message
+    ob = add(data['aco'], ob, ob_type)
+    data['aco'].update({ob.name: ob})
+    data['all'][ob_type].append(ob)
     with open('trashfile.json', 'w') as f:
         json.dump(data, f)
     return 'Added to adventure'
 
 
-def add(aco, ob, type):
+def add(aco, ob, ob_type):
     # {'name' 'flag', 'desc', 'secr', 'appe', 'prom', 'cond', 'ccon'}
     secrets = []
     if 'secr' in ob.keys():
         for i in ob['secr']:
             secrets.append(aco[i])
-    if type == 'npc':
+    if ob_type == 'npc':
         try:
             appe = float(ob['appe'])
         except ValueError:
@@ -44,7 +43,7 @@ def add(aco, ob, type):
             secrets=secrets,
             chance_to_appear=appe
         )
-    elif type == 'loc':
+    elif ob_type == 'loc':
         # name, activation_flag, description, start_items, secrets
         new = adv.LOCATION(
             name=ob['name'],
@@ -52,69 +51,63 @@ def add(aco, ob, type):
             description=ob['desc'],
             secrets=secrets
         )
-    elif type == 'sec':
+    elif ob_type == 'sec':
         new = adv.SECRET(  # no start items
             name=ob['name'],
             activation_flag=aco[ob['flag']],
             prompt=ob['prom']
         )
-    elif type == 'fla':
+    elif ob_type == 'fla':
         # TODO: include complex conditions CCON here as well!
         conditions = []
         for i in ob['cond']:
             conditions.append(aco[i])
-        if conditions == []:
+        if not conditions:
             conditions = True
         new = adv.FLAG(
             name=ob['name'],
             value=True,
             conditions=conditions
         )
-    elif type == 'tri':
+    elif ob_type == 'tri':
         new = adv.TRIGGER(
             name=ob['name'],
             activation_flag=aco[ob['flag']],
             call_flag=aco[ob['call']],
-            func=getfunc(ob['func'])
+            func=ob['func']
         )
     else:
         raise ValueError
     return new
 
 
-def getfunc(name):
-    def func():
-        print(f'This text is simulating the following function: {name}')
-    return func
-
-
 def from_webform(order, objects, starting_stage, userip):
     aco = {}
-    all = {'npc': [], 'loc': [], 'sec': [], 'fla': [], 'tri': [], 'starting_stage': {'location': None, 'npcs': []}}
+    all_obs = {'npc': [], 'loc': [], 'sec': [], 'fla': [], 'tri': [], 'starting_stage': {'location': None, 'npcs': []}}
     ob = add(aco, {'name': '', 'cond': []}, 'fla')
     aco.update({ob.name: ob})
-    all['fla'].append(ob)
+    all_obs['fla'].append(ob)
     for i in order:
         ob = add(aco, objects[i], i[0:3])
         aco.update({ob.name: ob})
-        all[i[0:3]].append(ob)
-    all['starting_stage']['location'] = aco[starting_stage['location']]
+        all_obs[i[0:3]].append(ob)
+    all_obs['starting_stage']['location'] = aco[starting_stage['location']]
     for i in starting_stage['npcs']:
-        all['starting_stage']['npcs'].append(aco[i])
-    return create_adventure(all, userip)
+        all_obs['starting_stage']['npcs'].append(aco[i])
+    return create_adventure(all_obs, userip)
 
 
-def create_adventure(all, userip):
-    id = str(datetime.datetime.now(datetime.timezone.utc)).lower().replace(' ', '_')
-    name = f'webadventure_ip:"{userip}"_id:"{id}"'
+def create_adventure(all_obs, userip):
+    timestamp = str(datetime.datetime.now(datetime.timezone.utc)).lower().replace(' ', '_')
+    name = f'webadventure_ip:"{userip}"_id:"{timestamp}"'
     adventure = adv.ADVENTURE(
         name=name,
-        locations=all['loc'],
-        npcs=all['npc'],
-        secrets=all['sec'],
-        trigger=all['tri'],
-        flags=all['fla'],
-        starting_stage=all['starting_stage']
+        locations=all_obs['loc'],
+        npcs=all_obs['npc'],
+        secrets=all_obs['sec'],
+        trigger=all_obs['tri'],
+        flags=all_obs['fla'],
+        starting_stage=all_obs['starting_stage']
     )
     with open('adventures.json', 'r') as f:
         data = json.load(f)
@@ -123,4 +116,3 @@ def create_adventure(all, userip):
         json.dump(data, f, indent=4)
     print(f'adventure is saved to <<{name}>>')
     return name
-

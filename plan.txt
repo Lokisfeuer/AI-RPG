@@ -1,21 +1,22 @@
 In order of priority:
 TODO: (get it working)
     - build necessary AIs
-    - test bot.py file
-    - test main.py main() function
-    - try out real triggers (and fake ones actually as well.)
-    - improve prompts of locations and npcs
-    - write full test adventures (& test them)
+    - test bot.py file //
+    - test main.py main() function //
+    - try out real triggers (and fake ones actually as well.) //
+    - improve prompts of locations and npcs /
+    - write full test adventures (& test them) //
 TODO: (make it presentable)
-    - fix error warnings
+    - fix error warnings /
     - finish all todos.
     - properly organise imports and organise them similar in every file
     - properly name your classes!
     - comment through everything
-    - write a real nice read.me
+    - write a real nice read.me /
     - improve beauty of website (/play and /write_adventure)
     - reorganise plan.txt (this file)
 TODO: (future plans)
+    - save all user entry's
     - write a normal writer function with text only in and out
     - think about multiplayer
 

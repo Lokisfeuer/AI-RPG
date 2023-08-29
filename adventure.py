@@ -1,21 +1,51 @@
+# Items literally have zero effect yet.
+# Neither have skills
+# TODO: add proper items and skills, even if they only have effect within triggers!
+# TODO: add default values to all class arguments and make them well!
+
 import random
-import math
+import openai
+import os
+
+openai.api_key = os.getenv('OPENAI_API_KEY')
 
 
 class ADVENTURE:
     # possibility to write custom adventures
     # possibly an intelligent AI adventure writer
     # use maps or something similar to move properly
-    def __init__(self, name, locations, npcs, secrets, trigger, flags):
+    def __init__(self, name, locations, npcs, secrets, flags, trigger=None, items=None, starting_stage=None):
         self.name = name
-        self.locations = locations
+        if locations is None:
+            self.locations = []
+        else:
+            self.locations = locations
         self.npcs = npcs
         self.secrets = secrets
+        if trigger is None:
+            trigger = []
         self.trigger = trigger
         self.flags = flags
+        if starting_stage is None:
+            starting_stage = {'location': self.rand_loc(), 'npcs': self.rand_npcs()}
+        self.starting_stage = starting_stage  # TODO: check starting_stage's format
+        if items is not None:
+            self.items = items
+        else:
+            self.items = []
+        for i in locations + npcs:
+            if i.start_items is not None:
+                self.items += i.start_items
         # https://github.com/AdrianSI666/DnD_Bestiary-Spellbook-CT
         # https://github.com/opendnd/personae Can do relations between characters!
         # https://github.com/topics/npc-generator
+
+    def rand_loc(self):
+        locations = []
+        for i in self.locations:
+            if i.activation_flag.value:
+                locations.append(i)
+        return random.choice(locations)
 
     def rand_npcs(self):
         npcs = []
@@ -24,10 +54,10 @@ class ADVENTURE:
                 npcs.append(i)
 
         # weighted random choice for how many npcs
-        weights = [0.1, 0.15, 0.25]  # propper distribution shifted to the left and centered around 3 would be better
+        weights = [0.1, 0.15, 0.25]  # proper distribution shifted to the left and centered around 3 would be better
         for i in range(len(npcs) - 3):
             weights.append(1 / (2 ** (i + 2)))
-        k = random.choices(range(len(npcs)), weights=weights)
+        k = random.choices(range(len(npcs)), weights=weights[:len(npcs)])[0]
 
         # weighted random choice which npc to choose
         weights = []
@@ -38,20 +68,45 @@ class ADVENTURE:
 
 
 class LOCATION:
-    def __init__(self, name, activation_flag, description, start_items, secrets):
+    def __init__(self, name, activation_flag, secrets, description=None, start_items=None):
         self.name = name
         self.activation_flag = activation_flag
         self.description = description
         self.start_items = start_items
         self.secrets = secrets
+        self.former_inputs = []
+        self.former_outputs = []
 
-    def call(self, message):
+    def call(self, message, npcs):
+        npc_text = ''
+        for i in npcs:
+            npc_text += f'{i.name} is in the room.\n{i.description}\n'
+        secret_text = ''
+        if self.secrets is not None and self.secrets != []:
+            secret_text = ''
+            for i in self.secrets:
+                secret_text += f'Secret: {i.prompt}\n'  # i.prompt[self] to adjust secret description
+            secret_text = f'If somebody looks around closely they might find hints on some of these secrets:' \
+                          f'\n{secret_text}\n:'
+        prompt = f'{self.description}\n\n{secret_text}{npc_text}\nDescribe {self.name} ' \
+                 f'and answer questions about {self.name}.\n\nQuestion: '
+        for i in range(min(len(self.former_inputs), 3)):
+            prompt += f'{self.former_inputs[i]}\nAnswer: {self.former_outputs[i]}\n\nQuestion: '
+        prompt += f'{message}\n\nAnswer: '
+        response = openai.Completion.create(model="text-davinci-002", prompt=prompt, temperature=0.4,
+                                            max_tokens=100, stop='Question:')
+        response = response['choices'][0]['text']
+        self.former_inputs.append(message)
+        self.former_outputs.append(response)
+        # TODO change name or make this __call__ method
         # TODO call openai with your description and so on to generate an answer
-        pass
+        return response
 
 
 class NPC:
-    def __init__(self, name, activation_flag, description, start_items, skills, secrets, chance_to_appear=1):
+    # Little idea on the side: giving each NPC an archetype from which it can generate a description and co.
+    def __init__(self, name, activation_flag, secrets, description=None, start_items=None, skills=None,
+                 chance_to_appear=1):
         self.name = name
         self.activation_flag = activation_flag
         self.description = description
@@ -59,21 +114,54 @@ class NPC:
         self.skills = skills
         self.secrets = secrets
         self.chance_to_appear = chance_to_appear
+        self.prompt = f'The following is a conversation between {self.name} and a person. {self.description} '
+        self.former_speak_inputs = []
+        self.former_speak_outputs = []
+        self.former_describe_inputs = []
+        self.former_describe_outputs = []
 
     def speak(self, message):
+        # check prompt propperly
+        if self.secrets is None or self.secrets == []:
+            prompt = self.prompt + '\n\nPerson: '
+        else:
+            secret_text = ''
+            for i in self.secrets:
+                secret_text += f'Secret: {i.prompt}\n'  # i.prompt[self] to adjust secret description
+            prompt = f'{self.prompt}{self.name} knows some secrets and loves to talk about them.' \
+                     f'\n{secret_text}\nPerson: '
+            # The single \n before person is correct.
+        for i in range(min(len(self.former_speak_inputs), 3)):
+            prompt = f'{prompt}{self.former_speak_inputs[i]}\n{self.name}: {self.former_speak_outputs[i]}\n\nPerson: '
+        prompt = f'{prompt}{message}\n{self.name}: '  # logical error, Person: I talk to the bartender.
+        response = openai.Completion.create(model="text-davinci-002", prompt=prompt, temperature=0.4,
+                                            max_tokens=100, stop='Person:')
+        response = response['choices'][0]['text']
+        self.former_speak_inputs.append(message)
+        self.former_speak_outputs.append(response)
+        return response
         # TODO call openai with your description and so on to generate an answer
-        pass
 
     def fight(self, message):
         return f'You wrote: "{message}"\nBut fighting {self.name} doesn\'t work.\n(Violence is never a solution)'
 
     def call(self, message):
+        prompt = f'{self.description}\n\nDescribe {self.name} and answer questions about {self.name}.\n\nQuestion: '
+        for i in range(min(len(self.former_describe_inputs), 3)):
+            prompt += f'{self.former_describe_inputs[i]}\nAnswer: {self.former_describe_outputs[i]}\n\nQuestion: '
+        prompt += f'{message}\n\nAnswer: '
+        response = openai.Completion.create(model="text-davinci-002", prompt=prompt, temperature=0.4,
+                                            max_tokens=100, stop='Question:')
+        response = response['choices'][0]['text']
+        self.former_describe_inputs.append(message)
+        self.former_describe_outputs.append(response)
+        # TODO change name or make this __call__ method
         # TODO call openai with your description and so on to generate an answer
-        pass
+        return response
 
 
 class SECRET:
-    def __init__(self, name, activation_flag, prompt):  # "where to find" system?
+    def __init__(self, name, activation_flag, prompt=None):  # "where to find" system?
         self.name = name
         self.prompt = prompt  # TODO: Define a definite format for this prompt
         self.activation_flag = activation_flag
@@ -81,19 +169,19 @@ class SECRET:
 
 
 class FLAG:  # like secrets without text. For example "won" is now a flag not a secret anymore.
-    def __init__(self, name, value, conditions):  # "and" and "or" and "not" combinations work;
+    def __init__(self, name, value=True, conditions=None):  # "and" and "or" and "not" combinations work;
         self.name = name
-        self.value = value  # boolean
+        self.value = value  # boolean TODO: just check yourself when created? its checked anyways all the time
         self.conditions = conditions
         # conditions consist of flags (true), secrets (found), npcs (in scene), locations (in scene)
         # conditions should be rather complex
 
-    def check(self, stage):
+    def check(self, stage):  # TODO consider making this __call__ method
         def check_item(item):  # this function checks for a "not" connection
             if isinstance(item, dict):
-                if not len(dict.keys()) == 1:
+                if not len(list(item.keys())) == 1:
                     raise ValueError
-                if check_item2(item.keys()[0]) == item.values()[0]:
+                if check_item2(list(item.keys())[0]) == list(item.values())[0]:
                     return True
                 else:
                     return False
@@ -156,24 +244,24 @@ class FLAG:  # like secrets without text. For example "won" is now a flag not a 
                         maxs.pop()
                         pos[-1] += 1
 
-        if isinstance(self.conditions, list):
+        if self.conditions is None or self.conditions == []:
+            self.value = self.value
+        elif isinstance(self.conditions, list):
             self.value = check_list()
         elif isinstance(self.conditions, bool):
             self.value = self.conditions
-        elif self.conditions is None:
-            self.value = self.value
         else:
             self.value = check_item(self.conditions)
 
 
 class TRIGGER:
-    def __init__(self, name, activation_flag, func, call_flag):
+    def __init__(self, name, activation_flag, call_flag, func):
         self.name = name
         self.activation_flag = activation_flag
-        self.call_flag = call_flag  # to flags in case one is "static" and changed by the trigger or so.
+        self.call_flag = call_flag  # two flags in case one is "static" and changed by the trigger or so.
         self.func = func
 
-    def call(self, game):
+    def call(self, game):  # TODO change name or make this __call__ method
         # count = game.trigger_count
         self.func(game)
 

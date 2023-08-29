@@ -321,9 +321,9 @@ class DYNAMIC_AI:
                 sentences.extend(ask_ai(prompt=f'{i}\n\n1.'))
             return sentences
 
-        true_master_prompt = f'Give me {prompt_nr} variations of this prompt: "{true_prompt}".\n\n1.'
+        true_master_prompt = f'Prompt: "{true_prompt}"\nGive me {prompt_nr} variations of this prompt: .\n\n1.'
         all_sentences = gen_sentences(master_prompt=true_master_prompt)
-        false_master_prompt = f'Give me {prompt_nr} variations of this prompt: "{false_prompt}".\n\n1.'
+        false_master_prompt = f'Prompt: "{false_prompt}"\nGive me {prompt_nr} variations of this prompt: .\n\n1.'
         all_sentences.extend(gen_sentences(master_prompt=false_master_prompt))
         labels = []
         for i in range(len(all_sentences)):

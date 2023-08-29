@@ -1,51 +1,38 @@
-from game import GAME
-from menu import MENU
-from adventure import ADVENTURE
+import json
+import jsonpickle
+import menu
 
-import os
-import discord
-
-TOKEN = os.getenv('DISCORD_TOKEN_ROLEPLAY')
-client = discord.Client(intents=discord.Intents.default())
-menus = {}
-options = {}
+from bot import run_bot
+from webapp import run_webapp
 
 
-@client.event
-async def on_ready():
-    print(f'{client.user.name} has connected to Discord.')
+def main():
+    user_name = None
+    while user_name is None:
+        user_name = input("Please enter your username: ")
+        resp = input(f'You entered "{user_name}". Do you want to use this username? ')
+        if resp.lower() not in ['true', '1', 't', 'y', 'yes']:
+            print("Username deleted.")
+    running = True
+    output = 'Please enter anything.'
+    while running:
+        user_input = input(output)
+        if '/exit/exit' in user_input:
+            running = False
+        with open('user_data.json', 'r') as f:
+            data = json.load(f)
+        if user_name not in data.keys():
+            user_menu = menu.MENU()
+        else:
+            user_menu = jsonpickle.decode(data[user_name], keys=True)
+        output = user_menu(user_input)
+        data[user_name] = jsonpickle.encode(user_menu, keys=True)
+        with open('user_data.json', 'w') as f:
+            json.dump(data, f, indent=4)
+    print('You exited the program, it will now run out.')
 
-
-@client.event
-async def on_message(message):
-    global menus
-    if message.author == client.user or not isinstance(message.channel, discord.channel.DMChannel):
-        return
-    username = message.author.name
-    if username not in menus.keys():
-        menus.update({username: MENU(options)})
-    answer = menus[username].call(message.content)
-    await message.channel.send(answer)
 
 if __name__ == '__main__':
-    # global options
-    adv1 = ADVENTURE()
-    adv2 = ADVENTURE()
-    options = {'adventure1': adv1.play, 'adventure2': adv2.play}
-    client.run(TOKEN)
-
-
-# maybe single documents for each of these bigger classes
-# think about OpenAI-API connections
-# think about general use of AI
-# think about how to save data
-# think about multiplayer
-
-
-'''
-The game basically consists of 
-    the player trying to find secrets searching his location and speaking with the npcs.
-    Changing locations
-    triggers
-    At some point: fighting monsters and npcs.
-'''
+    run_webapp()
+    # run_bot()
+    # main()

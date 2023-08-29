@@ -1,0 +1,72 @@
+In order of priority:
+TODO: (get it working)
+    - build necessary AIs
+    - test bot.py file
+    - test main.py main() function
+    - try out real triggers (and fake ones actually as well.)
+    - improve prompts of locations and npcs
+    - write full test adventures (& test them)
+TODO: (make it presentable)
+    - fix error warnings
+    - finish all todos.
+    - properly organise imports and organise them similar in every file
+    - properly name your classes!
+    - comment through everything
+    - write a real nice read.me
+    - improve beauty of website (/play and /write_adventure)
+    - reorganise plan.txt (this file)
+TODO: (future plans)
+    - write a normal writer function with text only in and out
+    - think about multiplayer
+
+
+An application where you can play roleplay adventures.
+    with text ONLY in and output
+    you can also write your own adventures others can then play
+    it can be called from other programs with an input text and returns the output (website, discord-bot)
+
+    users should be able to incorporate new features and concepts like abilities or time
+
+
+The game basically consists of
+    the player trying to find secrets searching his location and speaking with the npcs.
+    Changing locations
+    triggers
+    At some point: fighting monsters and npcs.
+
+The game.py and adventure.py are good and everything necessary is commented as 'TODO'
+
+
+
+WRITER:
+messages get in - -> adventure gets written to adventures.json to the users username
+
+
+SOME POINT IN THE FUTURE:
+class PLAYER_CHARACTER:  # for now irrelevant
+    def __init__(self):
+        pass
+
+
+class SKILL:  # for now irrelevant
+    def __init__(self):
+        pass
+
+
+class SETTING:  # for now irrelevant
+    def __init__(self):
+        pass
+
+
+class RULEBOOK:  # for now not that relevant
+    def __init__(self):
+        pass
+    # add fighting
+    # add multiplayer (Discord server / group chats)
+    # add the possibility to lose the game.
+    # all of this comes down to implementing a proper rulebook. D&D seems best for that purpose:
+    #   D&D all publications: https://the-eye.eu/public/Books/rpg.rem.uz/Dungeons%20%26%20Dragons/
+    #   Open source d&d character generator: https://www.npcgenerator.com/
+    #   An equivalent to this for locations. https://www.google.com/search?client=firefox-b-d&q=d%26d+location+generator
+    #   They need to be intertwined through secrets.
+    #   Also, they need to kind of react different on different types of characters.

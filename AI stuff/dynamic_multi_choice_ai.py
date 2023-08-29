@@ -250,8 +250,12 @@ def analyse_full_data(data):
     for i in range(data["labels"].nunique()):
         one_hot = np.zeros(data["labels"].nunique())
         one_hot[i] = 1
-        draw_data = data[data['labels'] == one_hot]
-        draw_data = draw_data['sentences']
+        draw_data = pd.DataFrame()
+        for j in data.itertuples():
+            if j['labels'] == one_hot:
+                draw_data.append(j)
+        # draw_data = data[data['labels'] == one_hot]
+        # draw_data = draw_data['sentences']
         plt.subplot(1, 2, i)
         wordcloud_draw(draw_data, 'white', f'Most-common words in category {i}.')
 
@@ -320,7 +324,7 @@ class DYNAMIC_AI:
         labels = []
         max = len(prompts)
         for idx, i in enumerate(prompts):
-            master_prompt = f'Give me {prompt_nr} variations of this prompt: "{i}".\n\n1.'
+            master_prompt = f'Prompt: "{i}"\nGive me {prompt_nr} variations of this prompt: .\n\n1.'
             new_sentences = gen_sentences()
             for j in new_sentences:
                 if j not in all_sentences:
@@ -435,7 +439,7 @@ if __name__ == "__main__":
     chemistry_prompt = 'Write a sentence about chemistry.'
     physics_prompt = 'Write a sentence about physics.'
     geology_prompt = 'Write a sentence about geology.'
-    ti.generate_training_data(10, 50, biology_prompt, chemistry_prompt, physics_prompt, geology_prompt)
+    ti.generate_training_data(2, 3, biology_prompt, chemistry_prompt, physics_prompt, geology_prompt)
     print('ANALYSE DATA BEGINN')
     ti.analyse_training_data()
     print('ANALYSE DATA END')

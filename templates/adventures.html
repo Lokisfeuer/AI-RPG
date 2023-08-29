@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html>
+    <body>
+		Please just do me a favor: Always use different names for everything, okay? Thanks. I love you!
+		<br>
+		Empty activation flag means its always active.
+		<br>
+		Please push the button of whatever you want to add to your adventure.
+		Then fill out all fields you need to - before starting the next one.
+		If you can't best don't push the button in the first place.
+		<br>
+		Now press this button (or hell will break loose just when you are done writing your adventure):
+		<input type="submit" id="newadventure" value="Start writing adventure" onClick="newadv(); return false;">
+		<form method="POST" action="/finished_adventure">
+			When you are done just press this button:
+			<input type=submit value="Submit adventure">
+
+
+			<h2>NPCs</h2>
+			"start items" and "skills" are split with ", "
+			<br>
+			<input type="submit" id="npcbutton" value="New NPC" onClick="newnpc(); return false;">
+
+			<table id="npc_tbl_id" align="center">
+				<thead>
+					<tr>
+						<th>name</th>
+						<th>activation flag</th>
+						<th>description</th>
+						<th>secrets</th>
+						<th>chance to appear</th>
+						<th>start items</th>
+						<th>skills</th>
+					</tr>
+				</thead>
+			</table>
+
+			<h2>Locations</h2>
+			<input type="submit" id="locbutton" value="New location" onClick="newloc(); return false;">
+
+			<table id="loc_tbl_id" align="center">
+				<thead>
+					<tr>
+						<th>name</th>
+						<th>activation flag</th>
+						<th>description</th>
+						<th>secrets</th>
+						<th>start items</th>
+					</tr>
+				</thead>
+			</table>
+
+			<h2>Secrets</h2>
+			<input type="submit" id="secbutton" value="New secret" onClick="newsec(); return false;">
+
+			<table id="sec_tbl_id" align="center">
+				<thead>
+					<tr>
+						<th>name</th>
+						<th>activation flag</th>
+						<th>prompt</th>
+					</tr>
+				</thead>
+			</table>
+
+			<h2>Flags</h2>
+			At the end create one flag with the name "won" and conditions of your choice. when this flag
+			becomes true the adventure is successfully finished.
+			<br>
+			<input type="submit" id="flabutton" value="New flag" onClick="newfla(); return false;">
+
+			<table id="fla_tbl_id" align="center">
+				<thead>
+					<tr>
+						<th>name</th>
+						<th>conditions</th>
+						<th>complex conditions</th>
+					</tr>
+				</thead>
+			</table>
+
+			<h2>Trigger</h2>
+			<input type="submit" id="tributton" value="New Trigger" onClick="newtri(); return false;">
+
+			<table id="tri_tbl_id" align="center">
+				<thead>
+					<tr>
+						<th>name</th>
+						<th>activation flag</th>
+						<th>call flag</th>
+						<th>function</th>
+					</tr>
+				</thead>
+			</table>
+
+			<h2>Starting Stage</h2>
+			<input type="submit" id="stastabutton" value="set starting stage (only use once)" onClick="stasta(); return false;">
+
+			<table id="sta_tbl_id" align="center">
+				<thead>
+					<tr>
+						<th>location</th>
+						<th>npcs</th>
+					</tr>
+				</thead>
+			</table>
+
+			<h2>Variables I am to lazy to store properly. If you change anything here the devil will eat you!</h2>
+			<input type='text' id='myvariables' name='myvariables'>
+		</form>
+
+
+
+		<script type="text/javascript">
+			function IDexists(id) {
+				const element = document.getElementById(id);
+				// If it isn't "undefined" and it isn't "null", then it exists.
+				return typeof (element) != 'undefined' && element != null;
+			}
+			function getall(otype, aspect='name') {
+				var id = "string";
+				var names = [];
+				for (let i = 0; i < 100; i++) {
+					id = otype + '_' + i.toString() + '_' + aspect;
+					if(IDexists(id)){
+						names.push(document.getElementById(id).value);
+					} else{
+						return names;
+					}
+				}
+			}
+
+			function dropdown(ls) {
+				var com = "        <option value=''></option>\n";
+				for (let i = 0; i < ls.length; i++) {
+					var name = ls[i];
+					var name_com = "        <option value='" + name + "'>" + name + "</option>\n";
+					com = com + name_com;
+				}
+				return com;
+			}
+
+			function newcell(row, modus, id, dropdown_ls = [], multiple = '') {
+				// if its dropdown with multiple just add multiple at the end of the id
+				const modi_sta = ["<input type='text' id=", "<textarea id=", "<select id="];
+				const modi_end = [">", "></textarea>", ">\n" + dropdown_ls + "</select>"];
+				// modus is 0;1 or 2
+				if(multiple!='') {
+					const x = "'";
+				} else {
+					const x = "";
+				}
+				var newCell = row.insertCell();
+				newCell.innerHTML="<tr><td>" + modi_sta[modus] + id + x + " name=" + id + multiple + modi_end[modus] + "</td></tr>";
+			}
+
+			function newadv() {
+				document.getElementById('myvariables').value = '';
+			}
+
+			function store(id_sta) {
+				var val = document.getElementById('myvariables').value;
+				document.getElementById('myvariables').value = val + id_sta + "' ";
+			}
+
+			function newnpc() {
+				const row = document.getElementById('npc_tbl_id').insertRow();
+				const ls = getall('npc');
+				const nr = ls.length;
+				const id_sta = "'npc_" + nr.toString();
+				store(id_sta);
+
+				var newCell = row.insertCell();
+				newCell.innerHTML="<tr><td><input type='text' id=" + id_sta + "_name' name=" + id_sta + "_name'></td></tr>";
+				var newCell = row.insertCell();
+				newCell.innerHTML="<tr><td><select id=" + id_sta + "_flag' name=" + id_sta + "_flag'>\n" + dropdown(getall('fla')) + "</select></td></tr>";
+				var newCell = row.insertCell();
+				newCell.innerHTML="<tr><td><textarea id=" + id_sta + "_desc' name=" + id_sta + "_desc'></textarea></td></tr>";
+				var newCell = row.insertCell();
+				newCell.innerHTML="<tr><td><select id=" + id_sta + "_secr' name=" + id_sta + "_secr' multiple>\n" + dropdown(getall('sec')) + "</select></td></tr>";
+				var newCell = row.insertCell();
+				newCell.innerHTML="<tr><td><input type='number' step='0.1' id=" + id_sta + "_appe' name=" + id_sta + "_appe'></td></tr>";
+				var newCell = row.insertCell();
+				newCell.innerHTML="<tr><td><textarea id=" + id_sta + "_item' name=" + id_sta + "_item'></textarea></td></tr>";
+				var newCell = row.insertCell();
+				newCell.innerHTML="<tr><td><textarea id=" + id_sta + "_skil' name=" + id_sta + "_skil'></textarea></td></tr>";
+				/*
+				newcell(newRow, 0, id_sta + "_name'");
+				newcell(newRow, 2, id_sta + "_flag'", dropdown(getall('fla')));
+				newcell(newRow, 1, id_sta + "_desc'");
+				newcell(newRow, 2, id_sta + "_secr", dropdown(getall('sec')), "[]' multiple");
+				newcell(newRow, 0, id_sta + "_appe'");
+				 */
+			}
+
+			function newloc() {
+				const row = document.getElementById('loc_tbl_id').insertRow();
+				const ls = getall('loc');
+				const nr = ls.length;
+				const id_sta = "'loc_" + nr.toString();
+				store(id_sta);
+
+				var newCell = row.insertCell();
+				newCell.innerHTML="<tr><td><input type='text' id=" + id_sta + "_name' name=" + id_sta + "_name'></td></tr>";
+				var newCell = row.insertCell();
+				newCell.innerHTML="<tr><td><select id=" + id_sta + "_flag' name=" + id_sta + "_flag'>\n" + dropdown(getall('fla')) + "</select></td></tr>";
+				var newCell = row.insertCell();
+				newCell.innerHTML="<tr><td><textarea id=" + id_sta + "_desc' name=" + id_sta + "_desc'></textarea></td></tr>";
+				var newCell = row.insertCell();
+				newCell.innerHTML="<tr><td><select id=" + id_sta + "_secr' name=" + id_sta + "_secr' multiple>\n" + dropdown(getall('sec')) + "</select></td></tr>";
+				var newCell = row.insertCell();
+				newCell.innerHTML="<tr><td><textarea id=" + id_sta + "_item' name=" + id_sta + "_item'></textarea></td></tr>";
+				/*
+				newcell(newRow, 0, id_sta + "_name'");
+				newcell(newRow, 2, id_sta + "_flag'", dropdown(getall('fla')));
+				newcell(newRow, 1, id_sta + "_desc'");
+				newcell(newRow, 2, id_sta + "_secr", dropdown(getall('sec')), "[]' multiple");
+				*/
+			}
+
+			function newsec() {
+				const row = document.getElementById('sec_tbl_id').insertRow();
+				const ls = getall('sec');
+				const nr = ls.length;
+				const id_sta = "'sec_" + nr.toString();
+				store(id_sta);
+
+				var newCell = row.insertCell();
+				newCell.innerHTML="<tr><td><input type='text' id=" + id_sta + "_name' name=" + id_sta + "_name'></td></tr>";
+				var newCell = row.insertCell();
+				newCell.innerHTML="<tr><td><select id=" + id_sta + "_flag' name=" + id_sta + "_flag'>\n" + dropdown(getall('fla')) + "</select></td></tr>";
+				var newCell = row.insertCell();
+				newCell.innerHTML="<tr><td><textarea id=" + id_sta + "_prom' name=" + id_sta + "_prom'></textarea></td></tr>";
+
+				/*
+				newcell(newRow, 0, id_sta + "_name'");
+				newcell(newRow, 2, id_sta + "_flag'", dropdown(getall('fla')));
+				newcell(newRow, 1, id_sta + "_prom'");
+				 */
+			}
+
+			function newfla() {
+				const row = document.getElementById('fla_tbl_id').insertRow();
+				const ls = getall('fla');
+				const nr = ls.length;
+				const id_sta = "'fla_" + nr.toString();
+				store(id_sta);
+
+				var full_ls = [];
+				full_ls = full_ls.concat(ls, getall('npc'), getall('loc'), getall('sec'));
+
+				var newCell = row.insertCell();
+				newCell.innerHTML="<tr><td><input type='text' id=" + id_sta + "_name' name=" + id_sta + "_name'></td></tr>";
+				var newCell = row.insertCell();
+				newCell.innerHTML="<tr><td><select id=" + id_sta + "_cond' name=" + id_sta + "_cond' multiple>\n" + dropdown(full_ls) + "</select></td></tr>";
+				var newCell = row.insertCell();
+				newCell.innerHTML="<tr><td><textarea id=" + id_sta + "_ccon' name=" + id_sta + "_desc'></textarea></td></tr>";
+
+				/*
+				newcell(newRow, 0, id_sta + "_name'");
+				var full_ls = [];
+				full_ls = full_ls.concat(ls, getall('npc'), getall('loc'), getall('sec'));
+				newcell(newRow, 2, id_sta + "_cond", dropdown(full_ls), "[]' multiple");
+				newcell(newRow, 1, id_sta + "_ccon'");
+				 */
+			}
+
+			function newtri() {
+				const row = document.getElementById('tri_tbl_id').insertRow();
+				const ls = getall('tri');
+				const nr = ls.length;
+				const id_sta = "'tri_" + nr.toString();
+				store(id_sta);
+
+				var newCell = row.insertCell();
+				newCell.innerHTML="<tr><td><input type='text' id=" + id_sta + "_name' name=" + id_sta + "_name'></td></tr>";
+				var newCell = row.insertCell();
+				newCell.innerHTML="<tr><td><select id=" + id_sta + "_flag' name=" + id_sta + "_flag'>\n" + dropdown(getall('fla')) + "</select></td></tr>";
+				var newCell = row.insertCell();
+				newCell.innerHTML="<tr><td><select id=" + id_sta + "_call' name=" + id_sta + "_call'>\n" + dropdown(getall('fla')) + "</select></td></tr>";
+				var newCell = row.insertCell();
+				newCell.innerHTML="<tr><td><input type='text' id=" + id_sta + "_func' name=" + id_sta + "_func'></td></tr>";
+			}
+
+			function stasta() {
+				const row = document.getElementById('sta_tbl_id').insertRow();
+				const id_sta = "'sta_"
+
+
+				var newCell = row.insertCell();
+				newCell.innerHTML="<tr><td><select id=" + id_sta + "loca' name=" + id_sta + "loca'>\n" + dropdown(getall('loc')) + "</select></td></tr>";
+				var newCell = row.insertCell();
+				newCell.innerHTML="<tr><td><select id=" + id_sta + "npcs' name=" + id_sta + "npcs' multiple>\n" + dropdown(getall('npc')) + "</select></td></tr>";
+
+			}
+		</script>
+
+    </body>
+
+</html>

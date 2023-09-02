@@ -13,6 +13,7 @@ def main():
         resp = input(f'You entered "{user_name}". Do you want to use this username? ')
         if resp.lower() not in ['true', '1', 't', 'y', 'yes']:
             print("Username deleted.")
+            user_name = None
     running = True
     output = 'Please enter anything.'
     while running:
@@ -33,6 +34,6 @@ def main():
 
 
 if __name__ == '__main__':
-    run_webapp()
+    # run_webapp()
     # run_bot()
-    # main()
+    main()

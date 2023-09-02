@@ -1,11 +1,13 @@
 In order of priority:
 TODO: (get it working)
-    - build necessary AIs
+    - build necessary AIs /
     - test bot.py file //
     - test main.py main() function //
     - try out real triggers (and fake ones actually as well.) //
     - improve prompts of locations and npcs /
     - write full test adventures (& test them) //
+    - improve type AI with higher bias towards changing the room.
+    - improve go_to model
 TODO: (make it presentable)
     - fix error warnings /
     - finish all todos.

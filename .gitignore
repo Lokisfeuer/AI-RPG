@@ -4,3 +4,4 @@
 *.dll
 *.csv
 *.pt
+user_data.json

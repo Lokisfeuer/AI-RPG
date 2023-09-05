@@ -29,7 +29,8 @@ def add(aco, ob, ob_type):
     secrets = []
     if 'secr' in ob.keys():
         for i in ob['secr']:
-            secrets.append(aco[i])
+            if isinstance(aco[i], adv.SECRET):
+                secrets.append(aco[i])
     if ob_type == 'npc':
         try:
             appe = float(ob['appe'])

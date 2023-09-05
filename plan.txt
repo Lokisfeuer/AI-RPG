@@ -1,16 +1,16 @@
 In order of priority:
 TODO: (get it working)
-    - build necessary AIs /
+    - build necessary AIs //
     - test bot.py file //
     - test main.py main() function //
     - try out real triggers (and fake ones actually as well.) //
     - improve prompts of locations and npcs /
     - write full test adventures (& test them) //
-    - improve type AI with higher bias towards changing the room.
-    - improve go_to model
+    - improve type AI with higher bias towards changing the room. /
+    - improve go_to model /
 TODO: (make it presentable)
     - fix error warnings /
-    - finish all todos.
+    - finish all todos. /
     - properly organise imports and organise them similar in every file
     - properly name your classes!
     - comment through everything
@@ -18,7 +18,7 @@ TODO: (make it presentable)
     - improve beauty of website (/play and /write_adventure)
     - reorganise plan.txt (this file)
 TODO: (future plans)
-    - save all user entry's
+    - save all user entry's (to have data for future AIs)
     - write a normal writer function with text only in and out
     - think about multiplayer
 
@@ -37,7 +37,6 @@ The game basically consists of
     triggers
     At some point: fighting monsters and npcs.
 
-The game.py and adventure.py are good and everything necessary is commented as 'TODO'
 
 
 

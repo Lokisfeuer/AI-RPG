@@ -31,7 +31,7 @@ class MENU:
         for i in list(data.keys())[1:]:
             if i not in self.option_strings:
                 adv = jsonpickle.decode(data[i], keys=True)
-                new = game.GAME(adventure=adv)
+                new = game.GAME(adventure=adv, use_roberta=False)
                 self.option_strings.append(i)
                 self.options.append(new)
 

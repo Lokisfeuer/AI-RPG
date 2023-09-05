@@ -1,7 +1,6 @@
 # Items literally have zero effect yet.
 # Neither have skills
 # TODO: add proper items and skills, even if they only have effect within triggers!
-# TODO: add default values to all class arguments and make them well!
 
 import random
 import openai
@@ -29,7 +28,7 @@ class ADVENTURE:
         self.flags = flags
         if starting_stage is None:
             starting_stage = {'location': self.rand_loc(), 'npcs': self.rand_npcs()}
-        self.starting_stage = starting_stage  # TODO: check starting_stage's format
+        self.starting_stage = starting_stage
         if items is not None:
             self.items = items
         else:
@@ -78,7 +77,7 @@ class LOCATION:
         self.former_inputs = []
         self.former_outputs = []
 
-    def call(self, message, npcs):
+    def __call__(self, message, npcs):
         npc_text = ''
         for i in npcs:
             npc_text += f'{i.name} is in the room.\n{i.description}\n'
@@ -99,8 +98,6 @@ class LOCATION:
         response = response['choices'][0]['text']
         self.former_inputs.append(message)
         self.former_outputs.append(response)
-        # TODO change name or make this __call__ method
-        # TODO call openai with your description and so on to generate an answer
         return response
 
 
@@ -141,12 +138,11 @@ class NPC:
         self.former_speak_inputs.append(message)
         self.former_speak_outputs.append(response)
         return response
-        # TODO call openai with your description and so on to generate an answer
 
     def fight(self, message):
         return f'You wrote: "{message}"\nBut fighting {self.name} doesn\'t work.\n(Violence is never a solution)'
 
-    def call(self, message):
+    def __call__(self, message):
         prompt = f'{self.description}\n\nDescribe {self.name} and answer questions about {self.name}.\n\nQuestion: '
         for i in range(min(len(self.former_describe_inputs), 3)):
             prompt += f'{self.former_describe_inputs[i]}\nAnswer: {self.former_describe_outputs[i]}\n\nQuestion: '
@@ -156,15 +152,13 @@ class NPC:
         response = response['choices'][0]['text']
         self.former_describe_inputs.append(message)
         self.former_describe_outputs.append(response)
-        # TODO change name or make this __call__ method
-        # TODO call openai with your description and so on to generate an answer
         return response
 
 
 class SECRET:
     def __init__(self, name, activation_flag, prompt=None):  # "where to find" system?
         self.name = name
-        self.prompt = prompt  # TODO: Define a definite format for this prompt
+        self.prompt = prompt
         self.activation_flag = activation_flag
         self.found = False
 
@@ -177,7 +171,7 @@ class FLAG:  # like secrets without text. For example "won" is now a flag not a 
         # conditions consist of flags (true), secrets (found), npcs (in stage), locations (in stage)
         # conditions should be rather complex
 
-    def check(self, stage):  # TODO consider making this __call__ method
+    def check(self, stage):
         def check_item(item):  # this function checks for a "not" connection
             if isinstance(item, dict):
                 if not len(list(item.keys())) == 1:
@@ -262,7 +256,7 @@ class TRIGGER:
         self.call_flag = call_flag  # two flags in case one is "static" and changed by the trigger or so.
         self.func = func  # a string of the function name
 
-    def call(self, game):  # TODO change name or make this __call__ method
+    def __call__(self, game):
         func = get_func(game.adventure.name, self.func)
         # count = game.trigger_count
         return func(game)

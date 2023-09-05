@@ -5,3 +5,7 @@
 *.csv
 *.pt
 user_data.json
+models/go_to_model.pt
+models/object_model.pt
+models/secret_model.pt
+models/type_model.pt

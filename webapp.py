@@ -1,3 +1,5 @@
+import os
+
 import json
 import jsonpickle
 from flask import Flask, request, render_template
@@ -16,8 +18,11 @@ def hello_world():
 @app.route('/play', methods=['POST'])
 def play():
     user_input = request.form.get('user_input')
-    with open('user_data.json', 'r') as f:
-        data = json.load(f)
+    if 'user_data.json' not in os.listdir():
+        data = {}
+    else:
+        with open('user_data.json', 'r') as f:
+            data = json.load(f)
     if request.remote_addr not in data.keys():
         user_menu = menu.MENU()
     else:

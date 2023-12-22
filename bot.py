@@ -20,8 +20,11 @@ async def on_message(message):
     if message.author == client.user or not isinstance(message.channel, discord.channel.DMChannel):
         return
     user_input = message.content
-    with open('user_data.json', 'r') as f:
-        data = json.load(f)
+    if 'user_data.json' not in os.listdir():
+        data = {}
+    else:
+        with open('user_data.json', 'r') as f:
+            data = json.load(f)
     if message.author.name not in data.keys():
         user_menu = menu.MENU()
     else:

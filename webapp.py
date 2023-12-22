@@ -1,9 +1,9 @@
+import json
+import jsonpickle
 from flask import Flask, request, render_template
 
 import menu as menu
 import writer as writer
-import json
-import jsonpickle
 
 app = Flask(__name__)
 

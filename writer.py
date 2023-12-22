@@ -1,9 +1,9 @@
 # write adventures
 import datetime
-import adventure as adv
 import json
 import jsonpickle
 
+import adventure as adv
 
 def write(message):
     if message.startswith('/reset'):

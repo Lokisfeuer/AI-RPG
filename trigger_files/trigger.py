@@ -1,5 +1,4 @@
 # TODO: consider making this a package with an __init_ file and co
-import os
 import inspect
 
 # import all trigger files:

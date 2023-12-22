@@ -1,8 +1,10 @@
-import menu
 import os
+
 import discord
-import jsonpickle
 import json
+import jsonpickle
+
+import menu
 
 TOKEN = os.getenv('DISCORD_TOKEN_ROLEPLAY')
 client = discord.Client(intents=discord.Intents.default())

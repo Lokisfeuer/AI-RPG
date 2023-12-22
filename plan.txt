@@ -9,10 +9,11 @@ TODO: (get it working)
     - improve type AI with higher bias towards changing the room. /
     - improve go_to model /
 TODO: (make it presentable)
+    - write a dependencies file
     - fix error warnings /
     - finish all todos. /
-    - properly organise imports and organise them similar in every file
-    - properly name your classes!
+    - properly organise imports and organise them similar in every file //
+    - properly name your classes //
     - comment through everything
     - write a real nice read.me /
     - improve beauty of website (/play and /write_adventure)
@@ -72,3 +73,9 @@ class RULEBOOK:  # for now not that relevant
     #   An equivalent to this for locations. https://www.google.com/search?client=firefox-b-d&q=d%26d+location+generator
     #   They need to be intertwined through secrets.
     #   Also, they need to kind of react different on different types of characters.
+
+
+Problems I found during installing on server:
+    - no dependencies file
+    - FileNotFoundError: [Errno 2] No such file or directory: 'user_data.json'
+        - because user_data.json is not in directory. Add empty user_data.json to directory?

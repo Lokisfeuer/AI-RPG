@@ -1,11 +1,13 @@
-import adventure as adv
+import os
+import random
+
 import torch
 from transformers import AutoTokenizer, AutoModel
 import torch.nn as nn
-import __main__
-import random
 import openai
-import os
+import __main__
+
+import adventure as adv
 
 
 openai.api_key = os.getenv('OPENAI_API_KEY')
@@ -72,7 +74,8 @@ class MultilabelOpenAINN(nn.Module):  # the NN with linear relu layers and one s
         return logits
 
 
-class BinaryNeuralNetwork(nn.Module):  # the NN with linear relu layers and one sigmoid in the end
+# TODO: Retrain Models to make this class obsolete.
+class BinaryRobertaNN_without256(nn.Module):  # the NN with linear relu layers and one sigmoid in the end
     def __init__(self, input_size):
         super().__init__()
         self.linear_relu_stack_with_sigmoid = nn.Sequential(
@@ -101,7 +104,7 @@ class BinaryNeuralNetwork(nn.Module):  # the NN with linear relu layers and one 
         return logits
 
 
-class BinaryWith256NeuralNetwork(nn.Module):  # the NN with linear relu layers and one sigmoid in the end
+class BinaryRobertaNN(nn.Module):  # the NN with linear relu layers and one sigmoid in the end
     def __init__(self, input_size):
         super().__init__()
         self.linear_relu_stack_with_sigmoid = nn.Sequential(
@@ -132,7 +135,7 @@ class BinaryWith256NeuralNetwork(nn.Module):  # the NN with linear relu layers a
         return logits
 
 
-class MultiLabelNeuralNetwork(nn.Module):  # the NN with linear relu layers and one sigmoid in the end
+class MultiLabelRobertaNN(nn.Module):  # the NN with linear relu layers and one sigmoid in the end
     def __init__(self, input_size, output_size):
         super().__init__()
         self.linear_relu_stack = nn.Sequential(
@@ -197,7 +200,7 @@ class GAME:  # a running game containing its adventure, its PC, the current stat
         for i in secrets:
             a = f'Secret: ""{i.name}. {i.prompt}""\nResponse: ""{self.response}""'
             if self.use_roberta:
-                setattr(__main__, "NeuralNetwork", BinaryNeuralNetwork)
+                setattr(__main__, "NeuralNetwork", BinaryRobertaNN_without256)
                 model = torch.load('AI_stuff/Moduls/secrets/model.pt')
                 model.eval()
                 a = self.long_roberta(a)
@@ -246,7 +249,7 @@ class GAME:  # a running game containing its adventure, its PC, the current stat
             prompt += f'{i+1}. {poss_objs[i].name}\n'
         prompt += f'\n{self.message}'
         if self.use_roberta:
-            setattr(__main__, "NeuralNetwork", MultiLabelNeuralNetwork)
+            setattr(__main__, "NeuralNetwork", MultiLabelRobertaNN)
             model = torch.load('AI_stuff/Moduls/object/model.pt')
             model.eval()
             a = self.long_roberta(prompt)
@@ -267,7 +270,7 @@ class GAME:  # a running game containing its adventure, its PC, the current stat
             self.npc_object = None
         poss_input_type = ['info', 'verbatim', 'action', 'fight', 'room change']
         if self.use_roberta:
-            setattr(__main__, "NeuralNetwork", MultiLabelNeuralNetwork)
+            setattr(__main__, "NeuralNetwork", MultiLabelRobertaNN)
             model = torch.load('AI_stuff/Moduls/type/model.pt')
             model.eval()
             a = self.long_roberta(self.message)
@@ -340,7 +343,7 @@ class GAME:  # a running game containing its adventure, its PC, the current stat
                 a += f'{self.adventure.locations.index(i)+1}. {i.name}\n'
         a += f'\n{self.message}'
         if self.use_roberta:
-            setattr(__main__, "NeuralNetwork", BinaryWith256NeuralNetwork)
+            setattr(__main__, "NeuralNetwork", BinaryRobertaNN)
             model = torch.load('AI_stuff/Moduls/go_to/model.pt')
             model.eval()
             a = self.long_roberta(self.message)

@@ -1,7 +1,9 @@
+import os
+
 import json
 import jsonpickle
-import menu
 
+import menu
 from bot import run_bot
 from webapp import run_webapp
 
@@ -20,8 +22,11 @@ def main():
         user_input = input(output)
         if '/exit/exit' in user_input:
             running = False
-        with open('user_data.json', 'r') as f:
-            data = json.load(f)
+        if 'user_data.json' not in os.listdir():
+            data = {}
+        else:
+            with open('user_data.json', 'r') as f:
+                data = json.load(f)
         if user_name not in data.keys():
             user_menu = menu.MENU()
         else:

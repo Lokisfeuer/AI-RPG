@@ -3,8 +3,10 @@
 # TODO: add proper items and skills, even if they only have effect within triggers!
 
 import random
-import openai
 import os
+
+import openai
+
 from trigger_files.trigger import get_func
 
 openai.api_key = os.getenv('OPENAI_API_KEY')

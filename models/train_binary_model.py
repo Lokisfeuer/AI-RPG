@@ -1,4 +1,5 @@
 import math
+
 import torch  # for AI
 import torch.nn as nn
 from torch.utils.data import Dataset, DataLoader
@@ -6,7 +7,7 @@ from torchmetrics import R2Score
 import matplotlib.pyplot as plt  # to plot training
 
 
-class CustomTopicDataset(Dataset):  # the dataset class
+class CustomDataset(Dataset):  # the dataset class
     def __init__(self, sentences, labels):
         self.x = sentences
         self.y = labels
@@ -130,7 +131,7 @@ def to_dataset(embedded_data):
     labels = embedded_data[1]
     sentences = embedded_data[0]
     labels = [torch.tensor([1.]) if i else torch.tensor([0.]) for i in labels]
-    dataset = CustomTopicDataset(sentences, labels)
+    dataset = CustomDataset(sentences, labels)
     return dataset
 
 
